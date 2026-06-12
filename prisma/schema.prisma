@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  id        String    @id @default(cuid())
+  nome      String
+  telefone  String?
+  email     String?
+  veiculo   String?
+  placa     String?
+  createdAt DateTime  @default(now())
+  servicos  Servico[]
+}
+
+model Mecanico {
+  id        String    @id @default(cuid())
+  nome      String
+  comissao  Float     @default(0)
+  createdAt DateTime  @default(now())
+  servicos  Servico[]
+}
+
+model Servico {
+  id              String       @id @default(cuid())
+  clienteId       String
+  cliente         Cliente      @relation(fields: [clienteId], references: [id])
+  mecanicoId      String?
+  mecanico        Mecanico?    @relation(fields: [mecanicoId], references: [id])
+  descricao       String
+  status          String       @default("aguardando_orcamento")
+  valorMaoDeObra  Float        @default(0)
+  valorPecas      Float        @default(0)
+  percentualPecas Float        @default(0)
+  hasPecas        Boolean      @default(false)
+  observacoes     String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  fluxos          FluxoCaixa[]
+}
+
+model FluxoCaixa {
+  id         String   @id @default(cuid())
+  tipo       String
+  descricao  String
+  valor      Float
+  categoria  String   @default("outros")
+  servicoId  String?
+  servico    Servico? @relation(fields: [servicoId], references: [id])
+  data       DateTime @default(now())
+  createdAt  DateTime @default(now())
+}
